@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "ratelimit",
     "django_ip_geolocation",
     "ip_tracking",
     "django.contrib.admin",
@@ -53,6 +54,8 @@ MIDDLEWARE = [
     "django_ip_geolocation.middleware.IpGeolocationMiddleware",
 
 ]
+
+RATELIMIT_VIEW = "ratelimit.exceptions.Ratelimited"
 
 ROOT_URLCONF = "alx-backend-security.urls"
 
