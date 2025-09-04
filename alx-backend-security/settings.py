@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -77,12 +79,27 @@ TEMPLATES = [
 WSGI_APPLICATION = "alx-backend-security.wsgi.application"
 
 
+CELERY_BEAT_SCHEDULE = {
+    "detect-suspicious-ips-hourly": {
+        "task": "ip_tracking.tasks.detect_suspicious_ips",
+        "schedule": crontab(minute=0, hour="*"),  # run every hour
+    },
+}
+
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "geo_cache",
     }
 }
+
+
+CELERY_BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+
+
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -93,6 +110,9 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+
+
 
 
 # Password validation
