@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "django_ip_geolocation",
     "ip_tracking",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "ip_tracking.middleware.IPLogMiddleware",
+    "django_ip_geolocation.middleware.IpGeolocationMiddleware",
 
 ]
 
@@ -71,6 +73,13 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "alx-backend-security.wsgi.application"
 
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "geo_cache",
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
