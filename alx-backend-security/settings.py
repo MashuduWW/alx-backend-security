@@ -10,10 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import os
 from pathlib import Path
 from celery.schedules import crontab
 from dotenv import load_dotenv
 load_dotenv()
+
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -23,11 +25,10 @@ load_dotenv(BASE_DIR / '.env')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-%c(ge0+c59hqr-^gui!_g&kxs@f$x-e1kn$_))elvof6-uq+3k"
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'fallback-insecure-key')
 DEBUG = os.getenv('DJANGO_DEBUG', 'False') == 'True'
 ALLOWED_HOSTS = [h for h in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if h]
 
@@ -35,6 +36,7 @@ ALLOWED_HOSTS = [h for h in os.getenv('DJANGO_ALLOWED_HOSTS', '').split(',') if 
 # Application definition
 
 INSTALLED_APPS = [
+    "drf_yasg", 
     "ratelimit",
     "django_celery_results",
     "django_celery_beat",
@@ -85,8 +87,8 @@ WSGI_APPLICATION = "alx-backend-security.wsgi.application"
 
 # Celery Configuration Options
 
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND')
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "rpc://")
 
 CELERY_BEAT_SCHEDULE = {
     "detect-suspicious-ips-hourly": {
@@ -110,19 +112,26 @@ CACHES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE'   : 'django.db.backends.mysql',
-        'NAME'     : os.getenv('DB_NAME'),
-        'USER'     : os.getenv('DB_USER'),
-        'PASSWORD' : os.getenv('DB_PASSWORD'),
-        'HOST'     : os.getenv('DB_HOST'),
-        'PORT'     : os.getenv('DB_PORT', '3306'),
-        'OPTIONS'  : {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
-        }
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": os.getenv("DB_USER"),
+        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.BasicAuthentication",
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
 
 
 
@@ -163,6 +172,11 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
+
+
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
